@@ -1560,7 +1560,7 @@ FMT_CONSTEXPR inline fp get_cached_power(int min_exponent,
   return {data::pow10_significands[index], data::pow10_exponents[index]};
 }
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) || defined(NXDK)
 #  define FMT_SNPRINTF snprintf
 #else
 FMT_API auto fmt_snprintf(char* buf, size_t size, const char* fmt, ...) -> int;

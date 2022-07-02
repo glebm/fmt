@@ -49,7 +49,7 @@
 #  define FMT_POSIX_CALL(call) FMT_SYSTEM(call)
 #else
 #  define FMT_SYSTEM(call) ::call
-#  ifdef _WIN32
+#  if defined(_WIN32) && !defined(NXDK)
 // Fix warnings about deprecated symbols.
 #    define FMT_POSIX_CALL(call) ::_##call
 #  else
@@ -260,7 +260,9 @@ class buffered_file {
   // Returns the pointer to a FILE object representing this file.
   FILE* get() const noexcept { return file_; }
 
+#ifndef NXDK
   FMT_API int descriptor() const;
+#endif
 
   void vprint(string_view format_str, format_args args) {
     fmt::vprint(file_, format_str, args);
@@ -336,6 +338,7 @@ class FMT_API file {
   // Attempts to write count bytes from the specified buffer to the file.
   size_t write(const void* buffer, size_t count);
 
+#ifndef NXDK
   // Duplicates a file descriptor with the dup function and returns
   // the duplicate as a file object.
   static file dup(int fd);
@@ -351,6 +354,7 @@ class FMT_API file {
   // Creates a pipe setting up read_end and write_end file objects for reading
   // and writing respectively.
   static void pipe(file& read_end, file& write_end);
+#endif
 
   // Creates a buffered_file object associated with this file and detaches
   // this file object from the file.

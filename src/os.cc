@@ -71,7 +71,7 @@ inline std::size_t convert_rwcount(std::size_t count) { return count; }
 
 FMT_BEGIN_NAMESPACE
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(NXDK)
 detail::utf16_to_utf8::utf16_to_utf8(basic_string_view<wchar_t> s) {
   if (int error_code = convert(s)) {
     FMT_THROW(windows_error(error_code,
@@ -202,11 +202,13 @@ void buffered_file::close() {
   if (result != 0) FMT_THROW(system_error(errno, "cannot close file"));
 }
 
+#ifndef NXDK
 int buffered_file::descriptor() const {
   int fd = FMT_POSIX_CALL(fileno(file_));
   if (fd == -1) FMT_THROW(system_error(errno, "cannot get file descriptor"));
   return fd;
 }
+#endif // !NXDK
 
 #if FMT_USE_FCNTL
 file::file(cstring_view path, int oflag) {
@@ -281,6 +283,7 @@ std::size_t file::write(const void* buffer, std::size_t count) {
   return detail::to_unsigned(result);
 }
 
+#ifndef NXDK
 file file::dup(int fd) {
   // Don't retry as dup doesn't return EINTR.
   // http://pubs.opengroup.org/onlinepubs/009695399/functions/dup.html
@@ -326,6 +329,7 @@ void file::pipe(file& read_end, file& write_end) {
   read_end = file(fds[0]);
   write_end = file(fds[1]);
 }
+#endif
 
 buffered_file file::fdopen(const char* mode) {
 // Don't retry as fdopen doesn't return EINTR.

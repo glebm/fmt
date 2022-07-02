@@ -28,8 +28,8 @@ FMT_BEGIN_NAMESPACE
 #  if FMT_HAS_INCLUDE("winapifamily.h")
 #    include <winapifamily.h>
 #  endif
-#  if defined(_WIN32) && (!defined(WINAPI_FAMILY) || \
-                          (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP))
+#  if defined(_WIN32) && !defined(NXDK) && \
+     (!defined(WINAPI_FAMILY) || (WINAPI_FAMILY == WINAPI_FAMILY_DESKTOP_APP))
 #    define FMT_USE_TZSET 1
 #  else
 #    define FMT_USE_TZSET 0
@@ -469,7 +469,7 @@ inline std::tm localtime(std::time_t time) {
 
     bool fallback(int res) { return res == 0; }
 
-#if !FMT_MSC_VERSION
+#if !FMT_MSC_VERSION || defined(NXDK)
     bool fallback(detail::null<>) {
       using namespace fmt::detail;
       std::tm* tm = std::localtime(&time_);
@@ -515,7 +515,7 @@ inline std::tm gmtime(std::time_t time) {
 
     bool fallback(int res) { return res == 0; }
 
-#if !FMT_MSC_VERSION
+#if !FMT_MSC_VERSION || defined(NXDK)
     bool fallback(detail::null<>) {
       std::tm* tm = std::gmtime(&time_);
       if (tm) tm_ = *tm;
